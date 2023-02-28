@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from 'react-query'
 import { createAnecdote } from '../requests'
+import { useNotifDispatch } from '../NotifContext'
 
 const AnecdoteForm = () => {
   const queryClient = useQueryClient()
@@ -10,16 +11,22 @@ const AnecdoteForm = () => {
     }
   })
 
+  const notifDispatch = useNotifDispatch()
+
   const onCreate = (event) => {
     event.preventDefault()
     const content = event.target.anecdote.value
     event.target.anecdote.value = ''
     if (content.length < 5) {
+      notifDispatch({type: 'CHANGE', payload: `${content} not 5 characters or more`})
+      setTimeout(() => {notifDispatch({type: 'HIDE'})}, 5000)
       console.log("Must be minimum 5 characters")
       return null
     }
     newAnecdoteMutation.mutate({content, votes: 0})
-}
+    notifDispatch({type: 'CHANGE', payload: `${content} successfully added`})
+    setTimeout(() => {notifDispatch({type: 'HIDE'})}, 5000)
+  }
 
   return (
     <div>
